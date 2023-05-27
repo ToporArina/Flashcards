@@ -4,7 +4,6 @@ import java.io.File
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-
 data class Card(val term: String, var def: String, var wrong: Int = 0)
 
 private var a: MutableList<Card> = mutableListOf()
@@ -13,16 +12,36 @@ var definition = ""
 var file = ""
 var logText = ""
 
-fun main() {
+fun main(args: Array<String>) {
+    for (i in args.indices step 2) {
+        if (args[i] == "-import") {
+            file = args[i + 1]
+            import()
+        }
+    }
     while (true) {
         println("Input the action (add, remove, import, export, ask, exit, log, hardest card, reset stats):")
         when (readln()) {
             "add" -> add()
             "remove" -> remove()
-            "import" -> import()
-            "export" -> export()
+            "import" -> {
+                println("File name:")
+                file = readln()
+                import()
+            }
+            "export" -> {
+                println("File name:")
+                file = readln()
+                export()
+            }
             "ask" -> ask()
             "exit" -> {
+                for (i in args.indices step 2) {
+                    if (args[i] == "-export") {
+                        file = args[i + 1]
+                        export()
+                    }
+                }
                 println("Bye bye!")
                 exitProcess(0)
             }
@@ -63,23 +82,6 @@ fun hardestCard() {
     } else {
         println("There are no cards with errors.")
     }
-
-//    val hard = a[0].wrong
-//    if (a.size == 1) {
-//        if (hard == 0) {
-//            println("There are no cards with errors.")
-//        } else {
-//            println("The hardest card is \"${a[0].term}\". You have ${a[0].wrong} errors answering it.")
-//        }
-//        return
-//    }
-//    if (hard == 0) {
-//        println("There are no cards with errors.")
-//    } else if (a[0].wrong > a[1].wrong) {
-//        println("The hardest card is \"${a[0].term}\". You have ${a[0].wrong} errors answering it.")
-//    } else if (a[0].wrong == a[1].wrong) {
-//        println("The hardest cards are \"${a[0].term}\", \"${a[1].term}\". You have ${a[0].wrong} errors answering it.")
-//    }
 }
 
 fun add() {
@@ -101,8 +103,6 @@ fun add() {
     }
     a.add(Card(card, definition, 0))
     println("The pair (\"$card\":\"$definition\") has been added.")
-
-
 }
 
 fun remove() {
@@ -119,12 +119,9 @@ fun remove() {
 }
 
 fun import() {
-
-    println("File name:")
-    file = readln()
     if (File(file).exists()) {
         val list = File(file).readLines()
-        var b = mutableListOf<Card>()
+        val b = mutableListOf<Card>()
         for (i in 0 until list.size step 3) {
             b.add(Card(list[i], list[i + 1], list[i + 2].toInt()))
         }
@@ -145,9 +142,6 @@ fun import() {
 }
 
 fun export() {
-
-    println("File name:")
-    file = readln()
     File(file).createNewFile()
     var str = ""
     for (i in 0 until a.size) {
@@ -195,7 +189,7 @@ fun println(str: String = "") {
 }
 
 fun readln(): String {
-    val str = kotlin.io.readln()
+    var str = kotlin.io.readln()
     logText += ">$a\n"
     return str
 }
